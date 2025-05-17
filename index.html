@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Chat Anónimo</title>
+  <title>Chat Anónimo Avanzado</title>
   <style>
     body {
       font-family: sans-serif;
@@ -19,12 +19,12 @@
     .chat-container {
       background: #fff;
       width: 100%;
-      max-width: 400px;
+      max-width: 450px;
       border-radius: 10px;
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      height: 90vh;
+      height: 95vh;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
 
@@ -46,36 +46,87 @@
     .message {
       background: #dcf8c6;
       margin-bottom: 10px;
-      padding: 8px 12px;
-      border-radius: 10px;
-      max-width: 80%;
-      word-wrap: break-word;
-    }
-
-    form {
-      display: flex;
-      border-top: 1px solid #ccc;
-    }
-
-    input {
-      flex-grow: 1;
       padding: 10px;
+      border-radius: 10px;
+      max-width: 100%;
+      word-wrap: break-word;
+      position: relative;
+    }
+
+    .meta {
+      font-size: 0.75em;
+      color: #555;
+      margin-bottom: 5px;
+    }
+
+    .reactions {
+      margin-top: 5px;
+    }
+
+    .reactions button {
+      margin-right: 5px;
+      cursor: pointer;
+      background: none;
       border: none;
       font-size: 1em;
-      outline: none;
+    }
+
+    .reply-button {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 0.8em;
+    }
+
+    form, .inputs {
+      display: flex;
+      flex-wrap: wrap;
+      border-top: 1px solid #ccc;
+      padding: 10px;
+      gap: 5px;
+    }
+
+    input[type="text"] {
+      flex-grow: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      font-size: 1em;
+      border-radius: 5px;
+    }
+
+    input[type="file"], select, button {
+      font-size: 0.9em;
     }
 
     button {
-      padding: 10px 15px;
+      padding: 8px 12px;
       background: #25d366;
       border: none;
       color: white;
       font-weight: bold;
       cursor: pointer;
+      border-radius: 5px;
     }
 
     button:hover {
       background: #1ebc5c;
+    }
+
+    .reply-box {
+      font-size: 0.85em;
+      background: #f0f0f0;
+      border-left: 3px solid #ccc;
+      margin-bottom: 5px;
+      padding: 5px;
+    }
+
+    img {
+      max-width: 100%;
+      margin-top: 8px;
+      border-radius: 5px;
     }
   </style>
 </head>
@@ -83,38 +134,131 @@
   <div class="chat-container">
     <header>💬 Chat Anónimo</header>
     <div id="chat-box" class="chat-box"></div>
+
+    <div class="inputs">
+      <select id="gender">
+        <option value="🧑‍🦲">No especificado</option>
+        <option value="👨 Hombre">👨 Hombre</option>
+        <option value="👩 Mujer">👩 Mujer</option>
+      </select>
+      <input type="file" id="image" accept="image/*">
+    </div>
+
     <form id="chat-form">
-      <input type="text" id="message" placeholder="Escribe un secreto..." autocomplete="off" required />
+      <input type="text" id="message" placeholder="Escribe tu secreto..." autocomplete="off" required />
       <button type="submit">Enviar</button>
     </form>
   </div>
 
   <script>
+    const chatBox = document.getElementById("chat-box");
     const form = document.getElementById("chat-form");
     const messageInput = document.getElementById("message");
-    const chatBox = document.getElementById("chat-box");
+    const genderSelect = document.getElementById("gender");
+    const imageInput = document.getElementById("image");
 
-    // Cargar mensajes guardados
+    let userId = localStorage.getItem("anonId");
+    if (!userId) {
+      userId = "Anonimo " + String(Math.floor(Math.random() * 9999)).padStart(4, '0');
+      localStorage.setItem("anonId", userId);
+    }
+
+    let replyTo = null;
+
     const savedMessages = JSON.parse(localStorage.getItem("chatMessages")) || [];
-    savedMessages.forEach(addMessageToChat);
+    savedMessages.forEach(renderMessage);
 
-    // Enviar mensaje
     form.addEventListener("submit", function (e) {
       e.preventDefault();
-      const message = messageInput.value.trim();
-      if (message) {
-        addMessageToChat(message);
-        savedMessages.push(message);
+      const text = messageInput.value.trim();
+      const gender = genderSelect.value;
+      const file = imageInput.files[0];
+      if (!text && !file) return;
+
+      const reader = new FileReader();
+      reader.onload = function () {
+        const imageData = file ? reader.result : null;
+        const messageData = {
+          id: Date.now(),
+          text,
+          user: userId,
+          gender,
+          image: imageData,
+          replyTo,
+          reactions: { heart: 0, lol: 0, bad: 0 }
+        };
+        savedMessages.push(messageData);
         localStorage.setItem("chatMessages", JSON.stringify(savedMessages));
+        renderMessage(messageData);
         messageInput.value = "";
+        imageInput.value = "";
+        replyTo = null;
+      };
+
+      if (file) {
+        reader.readAsDataURL(file);
+      } else {
+        reader.onload();
       }
     });
 
-    // Mostrar mensaje en el chat
-    function addMessageToChat(message) {
+    function renderMessage(msg) {
       const div = document.createElement("div");
       div.className = "message";
-      div.textContent = message;
+
+      if (msg.replyTo) {
+        const replied = savedMessages.find(m => m.id === msg.replyTo);
+        if (replied) {
+          const replyDiv = document.createElement("div");
+          replyDiv.className = "reply-box";
+          replyDiv.innerHTML = `<strong>${replied.user}</strong>: ${replied.text}`;
+          div.appendChild(replyDiv);
+        }
+      }
+
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      meta.textContent = `${msg.gender || "🧑‍🦲"} ${msg.user}`;
+      div.appendChild(meta);
+
+      const content = document.createElement("div");
+      content.textContent = msg.text;
+      div.appendChild(content);
+
+      if (msg.image) {
+        const img = document.createElement("img");
+        img.src = msg.image;
+        div.appendChild(img);
+      }
+
+      const reactions = document.createElement("div");
+      reactions.className = "reactions";
+
+      ["heart", "lol", "bad"].forEach(type => {
+        const emoji = type === "heart" ? "❤️" : type === "lol" ? "😂" : "👎";
+        const btn = document.createElement("button");
+        btn.textContent = `${emoji} ${msg.reactions[type]}`;
+        btn.onclick = () => {
+          msg.reactions[type]++;
+          localStorage.setItem("chatMessages", JSON.stringify(savedMessages));
+          chatBox.innerHTML = "";
+          savedMessages.forEach(renderMessage);
+        };
+        reactions.appendChild(btn);
+      });
+
+      div.appendChild(reactions);
+
+      const replyBtn = document.createElement("button");
+      replyBtn.className = "reply-button";
+      replyBtn.textContent = "↩️";
+      replyBtn.onclick = () => {
+        replyTo = msg.id;
+        messageInput.focus();
+        messageInput.placeholder = "Respondiendo a " + msg.user + "...";
+      };
+      div.appendChild(replyBtn);
+
       chatBox.appendChild(div);
       chatBox.scrollTop = chatBox.scrollHeight;
     }
