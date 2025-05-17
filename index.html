@@ -108,12 +108,10 @@
 
     .btn-girl {
       background: #f8b9d4;
-      color: #fff;
     }
 
     .btn-boy {
       background: #a2d2ff;
-      color: #fff;
     }
 
     .image-upload {
@@ -126,7 +124,7 @@
     }
 
     .send-button {
-      background: #25d366;
+      background: #007bff;
       color: white;
       padding: 12px;
       font-size: 1em;
@@ -137,7 +135,7 @@
 
     textarea {
       width: 100%;
-      height: 80px;
+      height: 100px;
       padding: 10px;
       font-size: 1em;
       border: 1px solid #ccc;
@@ -146,9 +144,9 @@
     }
 
     img {
-      max-width: 100%;
+      max-width: 100px;
+      border-radius: 8px;
       margin-top: 8px;
-      border-radius: 5px;
     }
 
     .hidden {
@@ -159,31 +157,30 @@
 <body>
   <div class="chat-container">
     <header>💬 Chat Anónimo</header>
-
     <button class="top-button" onclick="openModal()">📝 Escribe tu secreto</button>
-
     <div id="chat-box" class="chat-box"></div>
   </div>
 
-  <!-- Modal de mensaje -->
   <div class="modal" id="modal">
     <div class="modal-content">
-      <div class="gender-buttons">
-        <button class="btn-girl" onclick="selectGender('👩 Mujer')">👩 Soy Mujer</button>
-        <button class="btn-boy" onclick="selectGender('👨 Hombre')">👨 Soy Hombre</button>
+      <input type="file" id="image-input" class="hidden" accept="image/*" multiple>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div class="gender-buttons" style="display: flex; gap: 10px;">
+          <button id="btn-girl" class="btn-girl" onclick="selectGender('👩 Mujer')">👩 Soy Mujer</button>
+          <button id="btn-boy" class="btn-boy" onclick="selectGender('👨 Hombre')">👨 Soy Hombre</button>
+        </div>
+        <button class="image-upload" onclick="document.getElementById('image-input').click()">📷 Subir Imagen</button>
       </div>
-
       <textarea id="text-message" placeholder="Escribe tu secreto..."></textarea>
-      <input type="file" id="image-input" class="hidden" accept="image/*">
-      <button class="image-upload" onclick="document.getElement
-ById('image-input').click()">📷 Subir Imagen</button>
-      <button class="send-button" onclick="sendMessage()">Enviar Secreto</button>
+      <div id="image-preview" style="display: flex; gap: 10px; flex-wrap: wrap;"></div>
+      <button class="send-button" onclick="sendMessage()">📤 Publicar Secreto</button>
     </div>
   </div>
 
   <script>
     let selectedGender = null;
     let messageCount = 1;
+    let selectedImages = [];
 
     function openModal() {
       document.getElementById('modal').style.display = 'flex';
@@ -192,80 +189,100 @@ ById('image-input').click()">📷 Subir Imagen</button>
     function closeModal() {
       document.getElementById('modal').style.display = 'none';
       document.getElementById('text-message').value = '';
+      document.getElementById('image-preview').innerHTML = '';
+      document.getElementById('image-input').value = '';
+      selectedImages = [];
+      resetGenderButtons();
       selectedGender = null;
+    }
+
+    function resetGenderButtons() {
+      document.getElementById('btn-girl').style.backgroundColor = '#f8b9d4';
+      document.getElementById('btn-boy').style.backgroundColor = '#a2d2ff';
     }
 
     function selectGender(gender) {
       selectedGender = gender;
-      alert('Seleccionado: ' + gender);
+      resetGenderButtons();
+      if (gender === '👩 Mujer') {
+        document.getElementById('btn-girl').style.backgroundColor = '#d63384';
+      } else {
+        document.getElementById('btn-boy').style.backgroundColor = '#0056b3';
+      }
     }
+
+    document.getElementById('image-input').addEventListener('change', function () {
+      const preview = document.getElementById('image-preview');
+      preview.innerHTML = '';
+      selectedImages = [];
+      const files = Array.from(this.files).slice(0, 3);
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const img = document.createElement('img');
+          img.src = e.target.result;
+          selectedImages.push(e.target.result);
+          preview.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+      });
+    });
 
     function sendMessage() {
       const text = document.getElementById('text-message').value.trim();
-      const imageInput = document.getElementById('image-input');
-      const imageFile = imageInput.files[0];
-
       if (!selectedGender) {
         alert("Debes seleccionar si eres hombre o mujer.");
         return;
       }
-
       if (!text) {
         alert("Debes escribir un secreto.");
         return;
       }
-
       const chatBox = document.getElementById('chat-box');
-
       const messageDiv = document.createElement('div');
       messageDiv.className = 'message';
-
       const meta = document.createElement('div');
       meta.className = 'meta';
       meta.textContent = `Anonimo ${String(messageCount).padStart(4, '0')} · ${selectedGender}`;
       messageDiv.appendChild(meta);
-
+      selectedImages.forEach(src => {
+        const img = document.createElement('img');
+        img.src = src;
+        messageDiv.appendChild(img);
+      });
       const messageText = document.createElement('div');
       messageText.textContent = text;
       messageDiv.appendChild(messageText);
-
-      if (imageFile) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          const img = document.createElement('img');
-          img.src = e.target.result;
-          messageDiv.appendChild(img);
-        };
-        reader.readAsDataURL(imageFile);
-      }
-
-      // Reacciones
       const reactionsDiv = document.createElement('div');
       reactionsDiv.className = 'reactions';
-
-      ['❤️', '😂', '😡'].forEach(reaction => {
+      const reactions = { '❤️': 0, '😂': 0, '😡': 0 };
+      const userReactions = {};
+      Object.keys(reactions).forEach(symbol => {
         const btn = document.createElement('button');
-        btn.textContent = reaction;
+        const span = document.createElement('span');
+        span.textContent = ` ${reactions[symbol]}`;
+        btn.appendChild(document.createTextNode(symbol));
+        btn.appendChild(span);
         btn.onclick = () => {
-          btn.textContent = reaction + '✔️';
-          btn.disabled = true;
+          if (userReactions[symbol]) {
+            reactions[symbol]--;
+            userReactions[symbol] = false;
+          } else {
+            reactions[symbol]++;
+            userReactions[symbol] = true;
+          }
+          span.textContent = ` ${reactions[symbol]}`;
         };
         reactionsDiv.appendChild(btn);
       });
-
       messageDiv.appendChild(reactionsDiv);
       chatBox.appendChild(messageDiv);
       chatBox.scrollTop = chatBox.scrollHeight;
-
       messageCount++;
       closeModal();
-
-      // Reset input
-      imageInput.value = '';
     }
 
-    // Cierra el modal al hacer clic fuera de él
-    window.onclick = function(event) {
+    window.onclick = function (event) {
       const modal = document.getElementById('modal');
       if (event.target === modal) {
         closeModal();
