@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Anónimo Futurista</title>
+    <title>Chat Anónimo Profesional</title>
     <style>
         body {
-            font-family: 'Roboto', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #e0f7fa; /* Azul muy claro */
             margin: 0;
             padding: 0;
@@ -14,6 +14,11 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            transition: background-color 0.3s ease;
+        }
+
+        body.plus18-mode {
+            background-color: #ffebee; /* Rojo muy claro */
         }
 
         .chat-container {
@@ -26,6 +31,11 @@
             flex-direction: column;
             height: 92vh;
             box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            transition: background-color 0.3s ease;
+        }
+
+        .chat-container.plus18-mode {
+            background: #ffe0b2; /* Naranja claro */
         }
 
         .chat-type-buttons {
@@ -34,6 +44,12 @@
             padding: 15px;
             background-color: #b3e5fc; /* Otro tono de azul claro */
             border-bottom: 1px solid #81d4fa;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .chat-type-buttons.plus18-mode {
+            background-color: #ffcdd2; /* Rosa claro */
+            border-bottom-color: #ef9a9a;
         }
 
         .chat-type-buttons button {
@@ -75,13 +91,18 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            transition: background 0.3s ease;
+        }
+
+        header.plus18-mode {
+            background: linear-gradient(to right, #f44336, #e53935); /* Degradado rojo */
         }
 
         header button {
             background: none;
             border: none;
             color: white;
-            font-size: 1em;
+            font-size: 1.1em;
             cursor: pointer;
             outline: none;
         }
@@ -94,6 +115,11 @@
             display: flex;
             flex-direction: column;
             gap: 25px;
+            transition: background-color 0.3s ease;
+        }
+
+        .chat-box.plus18-mode {
+            background: #ffecb3; /* Amarillo claro */
         }
 
         .message-container {
@@ -101,6 +127,11 @@
             padding: 15px;
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: box-shadow 0.3s ease;
+        }
+
+        .message-container.plus18-mode {
+            box-shadow: 0 2px 8px rgba(255, 0, 0, 0.08);
         }
 
         .message-header {
@@ -114,6 +145,11 @@
             font-weight: bold;
             margin-right: 10px;
             color: #2196f3; /* Azul más fuerte */
+            transition: color 0.3s ease;
+        }
+
+        .message-container.plus18-mode .message-header h4 {
+            color: #f44336; /* Rojo más fuerte */
         }
 
         .message-header img {
@@ -126,6 +162,12 @@
         .message-content {
             margin-bottom: 10px;
             word-wrap: break-word;
+            color: #333;
+            transition: color 0.3s ease;
+        }
+
+        .message-container.plus18-mode .message-content {
+            color: #555;
         }
 
         .message-images {
@@ -147,18 +189,37 @@
             justify-content: space-between;
             font-size: 0.9em;
             color: #777;
+            transition: color 0.3s ease;
+        }
+
+        .message-container.plus18-mode .message-actions {
+            color: #999;
+        }
+
+        .reactions {
+            display: flex;
+            gap: 8px;
         }
 
         .reactions button {
-            margin-right: 10px;
             cursor: pointer;
             background: none;
             border: none;
-            font-size: 1em;
+            font-size: 1.1em;
             outline: none;
             display: flex;
             align-items: center;
             gap: 5px;
+            color: #777;
+            transition: color 0.3s ease;
+        }
+
+        .reactions button.reacted {
+            color: #2196f3; /* Azul al reaccionar */
+        }
+
+        .message-container.plus18-mode .reactions button.reacted {
+            color: #f44336; /* Rojo al reaccionar en modo +18 */
         }
 
         .reply-button {
@@ -171,12 +232,22 @@
             display: flex;
             align-items: center;
             gap: 5px;
+            transition: color 0.3s ease;
+        }
+
+        .message-container.plus18-mode .reply-button {
+            color: #f44336;
         }
 
         .replies-section {
             margin-top: 10px;
             padding-left: 15px;
             border-left: 2px solid #bbdefb;
+            transition: border-color 0.3s ease;
+        }
+
+        .message-container.plus18-mode .replies-section {
+            border-left-color: #ffccbc;
         }
 
         .top-button {
@@ -194,6 +265,14 @@
 
         .top-button:hover {
             background: linear-gradient(to right, #26c6da, #00bcd4);
+        }
+
+        .top-button.plus18-mode {
+            background: linear-gradient(to right, #ff8a65, #f44336); /* Degradado rojo */
+        }
+
+        .top-button.plus18-mode:hover {
+            background: linear-gradient(to right, #f44336, #d32f2f);
         }
 
         .modal {
@@ -219,6 +298,11 @@
             box-shadow: 0 8px 20px rgba(0,0,0,0.2);
         }
 
+        .gender-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
         .gender-buttons button {
             flex: 1;
             padding: 12px;
@@ -231,12 +315,9 @@
             transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
         }
 
-        .btn-girl {
-            /* Mantiene el color original */
-        }
-
-        .btn-boy {
-            /* Mantiene el color original */
+        .modal.plus18-mode .gender-buttons button {
+            border-color: #ef9a9a;
+            color: #d32f2f;
         }
 
         .btn-girl.selected {
@@ -269,8 +350,16 @@
             transition: background-color 0.3s ease;
         }
 
+        .modal.plus18-mode .image-upload {
+            background: #f44336;
+        }
+
         .image-upload:hover {
             background: #42a5f5;
+        }
+
+        .modal.plus18-mode .image-upload:hover {
+            background: #d32f2f;
         }
 
         #image-preview {
@@ -298,8 +387,16 @@
             transition: background-color 0.3s ease;
         }
 
+        .modal.plus18-mode .send-button {
+            background: #ff9800; /* Naranja enviar */
+        }
+
         .send-button:hover {
             background: #388e3c;
+        }
+
+        .modal.plus18-mode .send-button:hover {
+            background: #f57c00;
         }
 
         textarea {
@@ -311,6 +408,11 @@
             border-radius: 8px;
             resize: vertical;
             outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .modal.plus18-mode textarea {
+            border-color: #ef9a9a;
         }
 
         .hidden {
@@ -344,13 +446,23 @@
             text-align: center;
             color: #1976d2;
             margin-bottom: 15px;
+            transition: color 0.3s ease;
+        }
+
+        .settings-modal.plus18-mode .settings-content h2 {
+            color: #f44336;
         }
 
         .filter-options label {
             display: block;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             font-size: 1.1em;
             color: #555;
+            transition: color 0.3s ease;
+        }
+
+        .settings-modal.plus18-mode .filter-options label {
+            color: #777;
         }
 
         .filter-options select {
@@ -360,6 +472,18 @@
             border-radius: 8px;
             font-size: 1em;
             outline: none;
+            appearance: none; /* Para quitar la flecha por defecto */
+            background-image: url('data:image/svg+xml;utf8,<svg fill="#81d4fa" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24fill="none"/></svg>');
+            background-repeat: no-repeat;
+            background-position-x: 97%;
+            background-position-y: 50%;
+            transition: border-color 0.3s ease, color 0.3s ease, background-image 0.3s ease;
+        }
+
+        .settings-modal.plus18-mode .filter-options select {
+            border-color: #ef9a9a;
+            color: #d32f2f;
+            background-image: url('data:image/svg+xml;utf8,<svg fill="#ef9a9a" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24 fill="none"/></svg>');
         }
 
         .settings-buttons {
@@ -383,8 +507,16 @@
             color: white;
         }
 
+        .settings-modal.plus18-mode .settings-buttons .apply-button {
+            background: #f44336;
+        }
+
         .settings-buttons .apply-button:hover {
             background: #1565c0;
+        }
+
+        .settings-modal.plus18-mode .settings-buttons .apply-button:hover {
+            background: #d32f2f;
         }
 
         .settings-buttons .cancel-button {
@@ -392,8 +524,17 @@
             color: #1976d2;
         }
 
+        .settings-modal.plus18-mode .settings-buttons .cancel-button {
+            background: #ffcdd2;
+            color: #d32f2f;
+        }
+
         .settings-buttons .cancel-button:hover {
             background: #bbdefb;
+        }
+
+        .settings-modal.plus18-mode .settings-buttons .cancel-button:hover {
+            background: #ef9a9a;
         }
 
         .plus18-prompt {
@@ -469,7 +610,7 @@
         <div class="modal-content">
             <input type="file" id="image-input" class="hidden" accept="image/*" multiple>
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div class="gender-buttons" style="display: flex; gap: 10px;">
+                <div class="gender-buttons">
                     <button id="btn-girl" class="btn-girl" onclick="selectGender('👩 Mujer')">👩 Mujer</button>
                     <button id="btn-boy" class="btn-boy" onclick="selectGender('👨 Hombre')">👨 Hombre</button>
                 </div>
@@ -477,7 +618,7 @@
                     <label for="image-input" class="image-upload">📷 Subir Imagen (Max 3)</label>
                 </div>
             </div>
-            <div id="image-preview" style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <div id="image-preview">
                 </div>
             <textarea id="text-message" placeholder="Escribe tu secreto..."></textarea>
             <button class="send-button" onclick="sendMessage()">📤 Publicar Secreto</button>
@@ -488,16 +629,15 @@
         <div class="settings-content">
             <h2>⚙️ Ajustes de Filtro</h2>
             <div class="filter-options">
-                <label for="gender-filter">Mostrar mensajes de:</label<select id="gender-filter">
-                        <option value="todos">Todos</option>
-                        <option value="mujer">Mujer</option>
-                        <option value="hombre">Hombre</option>
-                    </select>
-                </div>
-                <div class="settings-buttons">
-                    <button class="cancel-button" onclick="closeSettingsModal()">Cancelar</button>
-                    <button class="apply-button" onclick="applyFilter()">Aplicar</button>
-                </div>
+                <label for="gender-filter">Mostrar mensajes de:</label>
+                <select id="gender-filter" onchange="applyFilter()">
+                    <option value="todos">Todos</option>
+                    <option value="mujer">Mujer</option>
+                    <option value="hombre">Hombre</option>
+                </select>
+            </div>
+            <div class="settings-buttons">
+                <button class="cancel-button" onclick="closeSettingsModal()">Cerrar</button>
             </div>
         </div>
     </div>
@@ -519,37 +659,94 @@
         let selectedImages = [];
         let currentFilter = 'todos';
         let isPlus18Chat = false;
+        let reactedMessages = {}; // Para rastrear las reacciones únicas
+
+        function applyPlus18Mode(enable) {
+            const body = document.body;
+            const chatContainer = document.querySelector('.chat-container');
+            const header = document.querySelector('header');
+            const topButton = document.querySelector('.top-button');
+            const settingsModal = document.getElementById('settingsModal');
+            const modal = document.getElementById('modal');
+            const chatTypeButtons = document.querySelector('.chat-type-buttons');
+            const chatBox = document.getElementById('chat-box');
+
+            body.classList.toggle('plus18-mode', enable);
+            chatContainer.classList.toggle('plus18-mode', enable);
+            header.classList.toggle('plus18-mode', enable);
+            topButton.classList.toggle('plus18-mode', enable);
+            settingsModal.classList.toggle('plus18-mode', enable);
+            modal.classList.toggle('plus18-mode', enable);
+            chatTypeButtons.classList.toggle('plus18-mode', enable);
+            chatBox.classList.toggle('plus18-mode', enable);
+
+            const genderButtons = modal.querySelectorAll('.gender-buttons button');
+            genderButtons.forEach(button => modal.classList.toggle('plus18-mode', enable));
+
+            const imageUploadButton = modal.querySelector('.image-upload');
+            if (imageUploadButton) modal.classList.toggle('plus18-mode', enable);
+
+            const sendButton = modal.querySelector('.send-button');
+            if (sendButton) modal.classList.toggle('plus18-mode', enable);
+
+            const textarea = modal.querySelector('textarea');
+            if (textarea) modal.classList.toggle('plus18-mode', enable);
+
+            const settingsContentH2 = settingsModal.querySelector('.settings-content h2');
+            if (settingsContentH2) settingsModal.classList.toggle('plus18-mode', enable);
+
+            const filterLabels = settingsModal.querySelectorAll('.filter-options label');
+            filterLabels.forEach(label => settingsModal.classList.toggle('plus18-mode', enable));
+
+            const filterSelect = settingsModal.querySelector('.filter-options select');
+            if (filterSelect) settingsModal.classList.toggle('plus18-mode', enable);
+
+            const settingsButtons = settingsModal.querySelectorAll('.settings-buttons button');
+            settingsButtons.forEach(button => settingsModal.classList.toggle('plus18-mode', enable));
+
+            const messageContainers = chatBox.querySelectorAll('.message-container');
+            messageContainers.forEach(container => container.classList.toggle('plus18-mode', enable));
+            const messageHeaders = chatBox.querySelectorAll('.message-header h4');
+            messageHeaders.forEach(header => container.classList.toggle('plus18-mode', enable));
+            const messageContents = chatBox.querySelectorAll('.message-content');
+            messageContents.forEach(content => container.classList.toggle('plus18-mode', enable));
+            const messageActions = chatBox.querySelectorAll('.message-actions');
+            messageActions.forEach(action => container.classList.toggle('plus18-mode', enable));
+            const replyButtons = chatBox.querySelectorAll('.reply-button');
+            replyButtons.forEach(button => container.classList.toggle('plus18-mode', enable));
+            const repliesSections = chatBox.querySelectorAll('.replies-section');
+            repliesSections.forEach(section => container.classList.toggle('plus18-mode', enable));
+            const reactionButtonsAll = chatBox.querySelectorAll('.reactions button');
+            reactionButtonsAll.forEach(button => container.classList.toggle('plus18-mode', enable));
+        }
 
         function switchChat(type) {
             if (type === 'plus18') {
                 document.getElementById('plus18Prompt').style.display = 'flex';
             } else {
                 isPlus18Chat = false;
+                applyPlus18Mode(false);
                 document.querySelector('.normal-chat').classList.add('active');
                 document.querySelector('.plus18-chat').classList.remove('active');
-                // Aquí podrías recargar los mensajes normales si los tienes separados
-                document.getElementById('chat-box').innerHTML = ''; // Limpiar el chat
-                // Simular carga de mensajes normales
-                addMessage({ gender: '👩 Mujer', anonymousId: '0001', text: 'Hola a todos en el chat normal!' });
-                addMessage({ gender: '👨 Hombre', anonymousId: '0002', text: 'Qué tal la noche?' });
+                document.getElementById('chat-box').innerHTML = '';
+                addMessage({ gender: 'mujer', anonymousId: '0001', text: 'Hola a todos en el chat normal!' });
+                addMessage({ gender: 'hombre', anonymousId: '0002', text: 'Qué tal la noche?' });
             }
         }
 
         function enterPlus18Chat() {
             isPlus18Chat = true;
+            applyPlus18Mode(true);
             document.getElementById('plus18Prompt').style.display = 'none';
             document.querySelector('.plus18-chat').classList.add('active');
             document.querySelector('.normal-chat').classList.remove('active');
-            // Aquí podrías cargar los mensajes +18 si los tienes separados
-            document.getElementById('chat-box').innerHTML = ''; // Limpiar el chat
-            // Simular carga de mensajes +18
-            addMessage({ gender: '👩 Mujer', anonymousId: '0003', text: 'Bienvenidas al chat +18 😉' });
-            addMessage({ gender: '👨 Hombre', anonymousId: '0004', text: 'A ver qué se cuenta por aquí...' });
+            document.getElementById('chat-box').innerHTML = '';
+            addMessage({ gender: 'mujer', anonymousId: '0003', text: 'Bienvenidas al chat +18 😉' });
+            addMessage({ gender: 'hombre', anonymousId: '0004', text: 'A ver qué se cuenta por aquí...' });
         }
 
         function cancelPlus18Chat() {
             document.getElementById('plus18Prompt').style.display = 'none';
-            // Mantener el chat normal activo
             if (!isPlus18Chat) {
                 document.querySelector('.normal-chat').classList.add('active');
                 document.querySelector('.plus18-chat').classList.remove('active');
@@ -612,23 +809,26 @@
             }
             const anonymousId = String(messageCount).padStart(4, '0');
             const messageData = {
-                gender: selectedGender.split(' ')[1], // Extraer solo Mujer o Hombre
+                gender: selectedGender.split(' ')[1].toLowerCase(),
                 anonymousId: anonymousId,
                 text: text,
                 images: selectedImages.map(img => img),
                 likes: 0,
-                replies: []
+                replies: [],
+                reactions: { '❤️': 0, '😂': 0, '😡': 0 },
+                reactedBy: {} // Para rastrear quién reaccionó a este mensaje
             };
             addMessage(messageData);
             messageCount++;
             closeModal();
-            applyFilter(); // Re-aplica el filtro después de enviar un mensaje
+            applyFilter();
         }
 
         function addMessage(data) {
             const chatBox = document.getElementById('chat-box');
             const messageContainer = document.createElement('div');
             messageContainer.className = 'message-container';
+            if (isPlus18Chat) messageContainer.classList.add('plus18-mode');
 
             const headerDiv = document.createElement('div');
             headerDiv.className = 'message-header';
@@ -660,82 +860,90 @@
 
             const reactionsDiv = document.createElement('div');
             reactionsDiv.className = 'reactions';
-            const reactions = { '❤️': 0, '😂': 0, '😡': 0 };
-            Object.keys(reactions).forEach(symbol => {
+            const reactionSymbols = ['❤️', '😂', '😡'];
+            reactionSymbols.forEach(symbol => {
                 const btn = document.createElement('button');
                 const span = document.createElement('span');
-                span.textContent = ` ${reactions[symbol]}`;
+                span.textContent = ` ${data.reactions[symbol] || 0}`;
                 btn.appendChild(document.createTextNode(symbol));
                 btn.appendChild(span);
-                btn.onclick = () => {
-                    reactions[symbol]++;
-                    span.textContent = ` ${reactions[symbol]}`;
-                };
-                reactionsDiv.appendChild(btn);
-            });
-            actionsDiv.appendChild(reactionsDiv);
+                    btn.onclick = () => {
+                        const messageId = data.anonymousId;
+                        if (!reactedMessages[messageId]) {
+                            reactedMessages[messageId] = {};
+                        }
+                        if (!reactedMessages[messageId][symbol]) {
+                            data.reactions[symbol]++;
+                            span.textContent = ` ${data.reactions[symbol]}`;
+                            reactedMessages[messageId][symbol] = true;
+                            btn.classList.add('reacted');
+                        }
+                    };
+                    reactionsDiv.appendChild(btn);
+                });
+                actionsDiv.appendChild(reactionsDiv);
 
-            const replyBtn = document.createElement('button');
-            replyBtn.className = 'reply-button';
-            replyBtn.textContent = 'Responder';
-            actionsDiv.appendChild(replyBtn);
+                const replyBtn = document.createElement('button');
+                replyBtn.className = 'reply-button';
+                replyBtn.textContent = 'Responder';
+                actionsDiv.appendChild(replyBtn);
 
-            messageContainer.appendChild(actionsDiv);
+                messageContainer.appendChild(actionsDiv);
 
-            const repliesSection = document.createElement('div');
-            repliesSection.className = 'replies-section';
-            messageContainer.appendChild(repliesSection);
+                const repliesSection = document.createElement('div');
+                repliesSection.className = 'replies-section';
+                messageContainer.appendChild(repliesSection);
 
-            messageContainer.classList.add(data.gender.toLowerCase());
-            chatBox.appendChild(messageContainer);
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
-
-        window.onclick = function (event) {
-            const modal = document.getElementById('modal');
-            if (event.target === modal) {
-                closeModal();
+                messageContainer.classList.add(data.gender);
+                chatBox.appendChild(messageContainer);
+                chatBox.scrollTop = chatBox.scrollHeight;
             }
-            const settingsModal = document.getElementById('settingsModal');
-            if (event.target === settingsModal) {
-                closeSettingsModal();
-            }
-            const plus18Prompt = document.getElementById('plus18Prompt');
-            if (event.target === plus18Prompt) {
-                cancelPlus18Chat();
-            }
-        }
 
-        function openSettingsModal() {
-            document.getElementById('settingsModal').style.display = 'flex';
-        }
-
-        function closeSettingsModal() {
-            document.getElementById('settingsModal').style.display = 'none';
-        }
-
-        function applyFilter() {
-            const filterValue = document.getElementById('gender-filter').value;
-            currentFilter = filterValue;
-            const chatBox = document.getElementById('chat-box');
-            const messages = chatBox.querySelectorAll('.message-container');
-
-            messages.forEach(message => {
-                if (filterValue === 'todos') {
-                    message.style.display = 'block';
-                } else if (filterValue === 'mujer' && message.classList.contains('mujer')) {
-                    message.style.display = 'block';
-                } else if (filterValue === 'hombre' && message.classList.contains('hombre')) {
-                    message.style.display = 'block';
-                } else {
-                    message.style.display = 'none';
+            window.onclick = function (event) {
+                const modal = document.getElementById('modal');
+                if (event.target === modal) {
+                    closeModal();
                 }
-            });
-        }
+                const settingsModal = document.getElementById('settingsModal');
+                if (event.target === settingsModal) {
+                    closeSettingsModal();
+                }
+                const plus18Prompt = document.getElementById('plus18Prompt');
+                if (event.target === plus18Prompt) {
+                    cancelPlus18Chat();
+                }
+            }
 
-        // Simulación de mensajes iniciales
-        addMessage({ gender: '👩 Mujer', anonymousId: '0000', text: '¡Hola a todos en el chat!', images: [] });
-        addMessage({ gender: '👨 Hombre', anonymousId: '0001', text: '¿Qué tal el día?', images: [] });
-    </script>
-</body>
-</html>
+            function openSettingsModal() {
+                document.getElementById('settingsModal').style.display = 'flex';
+            }
+
+            function closeSettingsModal() {
+                document.getElementById('settingsModal').style.display = 'none';
+            }
+
+            function applyFilter() {
+                const filterValue = document.getElementById('gender-filter').value;
+                currentFilter = filterValue;
+                const chatBox = document.getElementById('chat-box');
+                const messages = chatBox.querySelectorAll('.message-container');
+
+                messages.forEach(message => {
+                    if (filterValue === 'todos') {
+                        message.style.display = 'block';
+                    } else if (filterValue === 'mujer' && message.classList.contains('mujer')) {
+                        message.style.display = 'block';
+                    } else if (filterValue === 'hombre' && message.classList.contains('hombre')) {
+                        message.style.display = 'block';
+                    } else {
+                        message.style.display = 'none';
+                    }
+                });
+            }
+
+            // Simulación de mensajes iniciales
+            addMessage({ gender: 'mujer', anonymousId: '0000', text: '¡Hola a todos en el chat!', images: [], reactions: { '❤️': 0, '😂': 0, '😡': 0 } });
+            addMessage({ gender: 'hombre', anonymousId: '0001', text: '¿Qué tal el día?', images: [], reactions: { '❤️': 0, '😂': 0, '😡': 0 } });
+        </script>
+    </body>
+    </html>
