@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Chat Anónimo Avanzado</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat Anónimo</title>
   <style>
     body {
       font-family: sans-serif;
@@ -48,7 +48,6 @@
       margin-bottom: 10px;
       padding: 10px;
       border-radius: 10px;
-      max-width: 100%;
       word-wrap: break-word;
       position: relative;
     }
@@ -59,10 +58,6 @@
       margin-bottom: 5px;
     }
 
-    .reactions {
-      margin-top: 5px;
-    }
-
     .reactions button {
       margin-right: 5px;
       cursor: pointer;
@@ -71,56 +66,83 @@
       font-size: 1em;
     }
 
-    .reply-button {
-      position: absolute;
-      top: 5px;
-      right: 5px;
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-size: 0.8em;
-    }
-
-    form, .inputs {
-      display: flex;
-      flex-wrap: wrap;
-      border-top: 1px solid #ccc;
-      padding: 10px;
-      gap: 5px;
-    }
-
-    input[type="text"] {
-      flex-grow: 1;
-      padding: 10px;
-      border: 1px solid #ccc;
-      font-size: 1em;
-      border-radius: 5px;
-    }
-
-    input[type="file"], select, button {
-      font-size: 0.9em;
-    }
-
-    button {
-      padding: 8px 12px;
+    .top-button {
       background: #25d366;
+      color: white;
+      padding: 15px;
+      border: none;
+      font-size: 1.1em;
+      cursor: pointer;
+    }
+
+    .modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .gender-buttons button {
+      flex: 1;
+      padding: 10px;
       border: none;
       color: white;
-      font-weight: bold;
+      font-size: 1em;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .btn-girl {
+      background: #f8b9d4;
+      color: #fff;
+    }
+
+    .btn-boy {
+      background: #a2d2ff;
+      color: #fff;
+    }
+
+    .image-upload {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px;
       cursor: pointer;
       border-radius: 5px;
     }
 
-    button:hover {
-      background: #1ebc5c;
+    .send-button {
+      background: #25d366;
+      color: white;
+      padding: 12px;
+      font-size: 1em;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
     }
 
-    .reply-box {
-      font-size: 0.85em;
-      background: #f0f0f0;
-      border-left: 3px solid #ccc;
-      margin-bottom: 5px;
-      padding: 5px;
+    textarea {
+      width: 100%;
+      height: 80px;
+      padding: 10px;
+      font-size: 1em;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      resize: none;
     }
 
     img {
@@ -128,139 +150,126 @@
       margin-top: 8px;
       border-radius: 5px;
     }
+
+    .hidden {
+      display: none;
+    }
   </style>
 </head>
 <body>
   <div class="chat-container">
     <header>💬 Chat Anónimo</header>
+
+    <button class="top-button" onclick="openModal()">📝 Escribe tu secreto</button>
+
     <div id="chat-box" class="chat-box"></div>
+  </div>
 
-    <div class="inputs">
-      <select id="gender">
-        <option value="🧑‍🦲">No especificado</option>
-        <option value="👨 Hombre">👨 Hombre</option>
-        <option value="👩 Mujer">👩 Mujer</option>
-      </select>
-      <input type="file" id="image" accept="image/*">
+  <!-- Modal de mensaje -->
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <div class="gender-buttons">
+        <button class="btn-girl" onclick="selectGender('👩 Mujer')">👩 Soy Mujer</button>
+        <button class="btn-boy" onclick="selectGender('👨 Hombre')">👨 Soy Hombre</button>
+      </div>
+
+      <textarea id="text-message" placeholder="Escribe tu secreto..."></textarea>
+      <input type="file" id="image-input" class="hidden" accept="image/*">
+      <button class="image-upload" onclick="document.getElement
+ById('image-input').click()">📷 Subir Imagen</button>
+      <button class="send-button" onclick="sendMessage()">Enviar Secreto</button>
     </div>
-
-    <form id="chat-form">
-      <input type="text" id="message" placeholder="Escribe tu secreto..." autocomplete="off" required />
-      <button type="submit">Enviar</button>
-    </form>
   </div>
 
   <script>
-    const chatBox = document.getElementById("chat-box");
-    const form = document.getElementById("chat-form");
-    const messageInput = document.getElementById("message");
-    const genderSelect = document.getElementById("gender");
-    const imageInput = document.getElementById("image");
+    let selectedGender = null;
+    let messageCount = 1;
 
-    let userId = localStorage.getItem("anonId");
-    if (!userId) {
-      userId = "Anonimo " + String(Math.floor(Math.random() * 9999)).padStart(4, '0');
-      localStorage.setItem("anonId", userId);
+    function openModal() {
+      document.getElementById('modal').style.display = 'flex';
     }
 
-    let replyTo = null;
+    function closeModal() {
+      document.getElementById('modal').style.display = 'none';
+      document.getElementById('text-message').value = '';
+      selectedGender = null;
+    }
 
-    const savedMessages = JSON.parse(localStorage.getItem("chatMessages")) || [];
-    savedMessages.forEach(renderMessage);
+    function selectGender(gender) {
+      selectedGender = gender;
+      alert('Seleccionado: ' + gender);
+    }
 
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
-      const text = messageInput.value.trim();
-      const gender = genderSelect.value;
-      const file = imageInput.files[0];
-      if (!text && !file) return;
+    function sendMessage() {
+      const text = document.getElementById('text-message').value.trim();
+      const imageInput = document.getElementById('image-input');
+      const imageFile = imageInput.files[0];
 
-      const reader = new FileReader();
-      reader.onload = function () {
-        const imageData = file ? reader.result : null;
-        const messageData = {
-          id: Date.now(),
-          text,
-          user: userId,
-          gender,
-          image: imageData,
-          replyTo,
-          reactions: { heart: 0, lol: 0, bad: 0 }
+      if (!selectedGender) {
+        alert("Debes seleccionar si eres hombre o mujer.");
+        return;
+      }
+
+      if (!text) {
+        alert("Debes escribir un secreto.");
+        return;
+      }
+
+      const chatBox = document.getElementById('chat-box');
+
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'message';
+
+      const meta = document.createElement('div');
+      meta.className = 'meta';
+      meta.textContent = `Anonimo ${String(messageCount).padStart(4, '0')} · ${selectedGender}`;
+      messageDiv.appendChild(meta);
+
+      const messageText = document.createElement('div');
+      messageText.textContent = text;
+      messageDiv.appendChild(messageText);
+
+      if (imageFile) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const img = document.createElement('img');
+          img.src = e.target.result;
+          messageDiv.appendChild(img);
         };
-        savedMessages.push(messageData);
-        localStorage.setItem("chatMessages", JSON.stringify(savedMessages));
-        renderMessage(messageData);
-        messageInput.value = "";
-        imageInput.value = "";
-        replyTo = null;
-      };
-
-      if (file) {
-        reader.readAsDataURL(file);
-      } else {
-        reader.onload();
-      }
-    });
-
-    function renderMessage(msg) {
-      const div = document.createElement("div");
-      div.className = "message";
-
-      if (msg.replyTo) {
-        const replied = savedMessages.find(m => m.id === msg.replyTo);
-        if (replied) {
-          const replyDiv = document.createElement("div");
-          replyDiv.className = "reply-box";
-          replyDiv.innerHTML = `<strong>${replied.user}</strong>: ${replied.text}`;
-          div.appendChild(replyDiv);
-        }
+        reader.readAsDataURL(imageFile);
       }
 
-      const meta = document.createElement("div");
-      meta.className = "meta";
-      meta.textContent = `${msg.gender || "🧑‍🦲"} ${msg.user}`;
-      div.appendChild(meta);
+      // Reacciones
+      const reactionsDiv = document.createElement('div');
+      reactionsDiv.className = 'reactions';
 
-      const content = document.createElement("div");
-      content.textContent = msg.text;
-      div.appendChild(content);
-
-      if (msg.image) {
-        const img = document.createElement("img");
-        img.src = msg.image;
-        div.appendChild(img);
-      }
-
-      const reactions = document.createElement("div");
-      reactions.className = "reactions";
-
-      ["heart", "lol", "bad"].forEach(type => {
-        const emoji = type === "heart" ? "❤️" : type === "lol" ? "😂" : "👎";
-        const btn = document.createElement("button");
-        btn.textContent = `${emoji} ${msg.reactions[type]}`;
+      ['❤️', '😂', '😡'].forEach(reaction => {
+        const btn = document.createElement('button');
+        btn.textContent = reaction;
         btn.onclick = () => {
-          msg.reactions[type]++;
-          localStorage.setItem("chatMessages", JSON.stringify(savedMessages));
-          chatBox.innerHTML = "";
-          savedMessages.forEach(renderMessage);
+          btn.textContent = reaction + '✔️';
+          btn.disabled = true;
         };
-        reactions.appendChild(btn);
+        reactionsDiv.appendChild(btn);
       });
 
-      div.appendChild(reactions);
-
-      const replyBtn = document.createElement("button");
-      replyBtn.className = "reply-button";
-      replyBtn.textContent = "↩️";
-      replyBtn.onclick = () => {
-        replyTo = msg.id;
-        messageInput.focus();
-        messageInput.placeholder = "Respondiendo a " + msg.user + "...";
-      };
-      div.appendChild(replyBtn);
-
-      chatBox.appendChild(div);
+      messageDiv.appendChild(reactionsDiv);
+      chatBox.appendChild(messageDiv);
       chatBox.scrollTop = chatBox.scrollHeight;
+
+      messageCount++;
+      closeModal();
+
+      // Reset input
+      imageInput.value = '';
+    }
+
+    // Cierra el modal al hacer clic fuera de él
+    window.onclick = function(event) {
+      const modal = document.getElementById('modal');
+      if (event.target === modal) {
+        closeModal();
+      }
     }
   </script>
 </body>
