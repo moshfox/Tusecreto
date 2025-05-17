@@ -473,10 +473,10 @@
             font-size: 1em;
             outline: none;
             appearance: none; /* Para quitar la flecha por defecto */
-            background-image: url('data:image/svg+xml;utf8,<svg fill="#81d4fa" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24fill="none"/></svg>');
+            background-image: url('data:image/svg+xml;utf8,<svg fill="#81d4fa" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24 fill="none"/></svg>');
             background-repeat: no-repeat;
             background-position-x: 97%;
-            background-position-y: 50%;
+            background-position-y:50%;
             transition: border-color 0.3s ease, color 0.3s ease, background-image 0.3s ease;
         }
 
@@ -647,8 +647,8 @@
             <h2>⚠️ Contenido +18</h2>
             <p>¿Eres mayor de 18 años?</p>
             <div class="plus18-buttons">
-                <button class="plus18-yes" onclick="enterPlus18Chat()">Sí, soy mayor de 18</button>
-                <button class="plus18-no" onclick="cancelPlus18Chat()">No, soy menor</button>
+                <button class="plus18-yes" onclick="handlePlus18Confirmation(true)">Sí, soy mayor de 18</button>
+                <button class="plus18-no" onclick="handlePlus18Confirmation(false)">No, soy menor</button>
             </div>
         </div>
     </div>
@@ -660,6 +660,9 @@
         let currentFilter = 'todos';
         let isPlus18Chat = false;
         let reactedMessages = {}; // Para rastrear las reacciones únicas
+        const normalChatMessages = [];
+        const plus18ChatMessages = [];
+        let currentChatMessages = normalChatMessages;
 
         function applyPlus18Mode(enable) {
             const body = document.body;
@@ -725,31 +728,29 @@
                 document.getElementById('plus18Prompt').style.display = 'flex';
             } else {
                 isPlus18Chat = false;
+                currentChatMessages = normalChatMessages;
                 applyPlus18Mode(false);
                 document.querySelector('.normal-chat').classList.add('active');
                 document.querySelector('.plus18-chat').classList.remove('active');
-                document.getElementById('chat-box').innerHTML = '';
-                addMessage({ gender: 'mujer', anonymousId: '0001', text: 'Hola a todos en el chat normal!' });
-                addMessage({ gender: 'hombre', anonymousId: '0002', text: 'Qué tal la noche?' });
+                renderChat();
             }
         }
 
-        function enterPlus18Chat() {
-            isPlus18Chat = true;
-            applyPlus18Mode(true);
+        function handlePlus18Confirmation(isAdult) {
             document.getElementById('plus18Prompt').style.display = 'none';
-            document.querySelector('.plus18-chat').classList.add('active');
-            document.querySelector('.normal-chat').classList.remove('active');
-            document.getElementById('chat-box').innerHTML = '';
-            addMessage({ gender: 'mujer', anonymousId: '0003', text: 'Bienvenidas al chat +18 😉' });
-            addMessage({ gender: 'hombre', anonymousId: '0004', text: 'A ver qué se cuenta por aquí...' });
-        }
-
-        function cancelPlus18Chat() {
-            document.getElementById('plus18Prompt').style.display = 'none';
-            if (!isPlus18Chat) {
+            if (isAdult) {
+                isPlus18Chat = true;
+                currentChatMessages = plus18ChatMessages;
+                applyPlus18Mode(true);
+                document.querySelector('.plus18-chat').classList.add('active');
+                document.querySelector('.normal-chat').classList.remove('active');
+                renderChat();
+            } else {
+                isPlus18Chat = false;
+                currentChatMessages = normalChatMessages;
                 document.querySelector('.normal-chat').classList.add('active');
                 document.querySelector('.plus18-chat').classList.remove('active');
+                renderChat();
             }
         }
 
@@ -812,61 +813,64 @@
                 gender: selectedGender.split(' ')[1].toLowerCase(),
                 anonymousId: anonymousId,
                 text: text,
-                images: selectedImages.map(img => img),
+                images: selectedImages.map(img => URL.createObjectURL(img)),
                 likes: 0,
                 replies: [],
                 reactions: { '❤️': 0, '😂': 0, '😡': 0 },
                 reactedBy: {} // Para rastrear quién reaccionó a este mensaje
             };
-            addMessage(messageData);
+            currentChatMessages.push(messageData);
             messageCount++;
             closeModal();
+            renderChat();
             applyFilter();
         }
 
-        function addMessage(data) {
+        function renderChat() {
             const chatBox = document.getElementById('chat-box');
-            const messageContainer = document.createElement('div');
-            messageContainer.className = 'message-container';
-            if (isPlus18Chat) messageContainer.classList.add('plus18-mode');
+            chatBox.innerHTML = '';
+            currentChatMessages.forEach(data => {
+                const messageContainer = document.createElement('div');
+                messageContainer.className = 'message-container';
+                if (isPlus18Chat) messageContainer.classList.add('plus18-mode');
 
-            const headerDiv = document.createElement('div');
-            headerDiv.className = 'message-header';
-            const anonymousTag = document.createElement('h4');
-            anonymousTag.textContent = `Anónimo ${data.anonymousId}`;
-            headerDiv.appendChild(anonymousTag);
-            messageContainer.appendChild(headerDiv);
+                const headerDiv = document.createElement('div');
+                headerDiv.className = 'message-header';
+                const anonymousTag = document.createElement('h4');
+                anonymousTag.textContent = `Anónimo ${data.anonymousId}`;
+                headerDiv.appendChild(anonymousTag);
+                messageContainer.appendChild(headerDiv);
 
-            if (data.images && data.images.length > 0) {
-                const imagesDiv = document.createElement('div');
-                imagesDiv.className = 'message-images';
-                data.images.forEach(src => {
-                    const img = document.createElement('img');
-                    img.src = src;
-                    imagesDiv.appendChild(img);
-                });
-                messageContainer.appendChild(imagesDiv);
-            }
+                if (data.images && data.images.length > 0) {
+                    const imagesDiv = document.createElement('div');
+                    imagesDiv.className = 'message-images';
+                    data.images.forEach(src => {
+                        const img = document.createElement('img');
+                        img.src = src;
+                        imagesDiv.appendChild(img);
+                    });
+                    messageContainer.appendChild(imagesDiv);
+                }
 
-            if (data.text) {
-                const contentDiv = document.createElement('div');
-                contentDiv.className = 'message-content';
-                contentDiv.textContent = data.text;
-                messageContainer.appendChild(contentDiv);
-            }
+                if (data.text) {
+                    const contentDiv = document.createElement('div');
+                    contentDiv.className = 'message-content';
+                    contentDiv.textContent = data.text;
+                    messageContainer.appendChild(contentDiv);
+                }
 
-            const actionsDiv = document.createElement('div');
-            actionsDiv.className = 'message-actions';
+                const actionsDiv = document.createElement('div');
+                actionsDiv.className = 'message-actions';
 
-            const reactionsDiv = document.createElement('div');
-            reactionsDiv.className = 'reactions';
-            const reactionSymbols = ['❤️', '😂', '😡'];
-            reactionSymbols.forEach(symbol => {
-                const btn = document.createElement('button');
-                const span = document.createElement('span');
-                span.textContent = ` ${data.reactions[symbol] || 0}`;
-                btn.appendChild(document.createTextNode(symbol));
-                btn.appendChild(span);
+                const reactionsDiv = document.createElement('div');
+                reactionsDiv.className = 'reactions';
+                const reactionSymbols = ['❤️', '😂', '😡'];
+                reactionSymbols.forEach(symbol => {
+                    const btn = document.createElement('button');
+                    const span = document.createElement('span');
+                    span.textContent = ` ${data.reactions[symbol] || 0}`;
+                    btn.appendChild(document.createTextNode(symbol));
+                    btn.appendChild(span);
                     btn.onclick = () => {
                         const messageId = data.anonymousId;
                         if (!reactedMessages[messageId]) {
@@ -910,7 +914,7 @@
                 }
                 const plus18Prompt = document.getElementById('plus18Prompt');
                 if (event.target === plus18Prompt) {
-                    cancelPlus18Chat();
+                    handlePlus18Confirmation(false);
                 }
             }
 
@@ -925,25 +929,10 @@
             function applyFilter() {
                 const filterValue = document.getElementById('gender-filter').value;
                 currentFilter = filterValue;
-                const chatBox = document.getElementById('chat-box');
-                const messages = chatBox.querySelectorAll('.message-container');
-
-                messages.forEach(message => {
-                    if (filterValue === 'todos') {
-                        message.style.display = 'block';
-                    } else if (filterValue === 'mujer' && message.classList.contains('mujer')) {
-                        message.style.display = 'block';
-                    } else if (filterValue === 'hombre' && message.classList.contains('hombre')) {
-                        message.style.display = 'block';
-                    } else {
-                        message.style.display = 'none';
-                    }
-                });
+                renderChat();
             }
 
-            // Simulación de mensajes iniciales
-            addMessage({ gender: 'mujer', anonymousId: '0000', text: '¡Hola a todos en el chat!', images: [], reactions: { '❤️': 0, '😂': 0, '😡': 0 } });
-            addMessage({ gender: 'hombre', anonymousId: '0001', text: '¿Qué tal el día?', images: [], reactions: { '❤️': 0, '😂': 0, '😡': 0 } });
+            // No se agregan mensajes de simulación inicial
         </script>
     </body>
     </html>
