@@ -1,293 +1,501 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chat Anónimo</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      background-color: #e5ddd5;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Anónimo</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f1de;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
 
-    .chat-container {
-      background: #fff;
-      width: 100%;
-      max-width: 450px;
-      border-radius: 10px;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      height: 95vh;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
+        .chat-container {
+            background: #fff;
+            width: 90%;
+            max-width: 600px;
+            border-radius: 15px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 90vh;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
 
-    header {
-      background: #075e54;
-      color: white;
-      padding: 15px;
-      text-align: center;
-      font-size: 1.2em;
-    }
+        header {
+            background: #2b8a3e; /* Un verde más moderno */
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-    .chat-box {
-      flex-grow: 1;
-      padding: 10px;
-      overflow-y: auto;
-      background: #f7f7f7;
-    }
+        header button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1em;
+            cursor: pointer;
+            outline: none;
+        }
 
-    .message {
-      background: #dcf8c6;
-      margin-bottom: 10px;
-      padding: 10px;
-      border-radius: 10px;
-      word-wrap: break-word;
-      position: relative;
-    }
+        .chat-box {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f9f5f3;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
 
-    .meta {
-      font-size: 0.75em;
-      color: #555;
-      margin-bottom: 5px;
-    }
+        .message {
+            padding: 15px;
+            border-radius: 15px;
+            word-wrap: break-word;
+            position: relative;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
 
-    .reactions button {
-      margin-right: 5px;
-      cursor: pointer;
-      background: none;
-      border: none;
-      font-size: 1em;
-    }
+        .message.mujer {
+            background: #fcd5ce; /* Rosa suave */
+        }
 
-    .top-button {
-      background: #25d366;
-      color: white;
-      padding: 15px;
-      border: none;
-      font-size: 1.1em;
-      cursor: pointer;
-    }
+        .message.hombre {
+            background: #bae1ff; /* Azul suave */
+        }
 
-    .modal {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.5);
-      display: none;
-      justify-content: center;
-      align-items: center;
-    }
+        .meta {
+            font-size: 0.8em;
+            color: #777;
+            margin-bottom: 8px;
+        }
 
-    .modal-content {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      width: 90%;
-      max-width: 400px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
+        .reactions button {
+            margin-right: 8px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 1.1em;
+            outline: none;
+        }
 
-    .gender-buttons button {
-      flex: 1;
-      padding: 10px;
-      border: none;
-      color: white;
-      font-size: 1em;
-      border-radius: 5px;
-      cursor: pointer;
-    }
+        .top-button {
+            background: #5cb85c; /* Verde más vibrante */
+            color: white;
+            padding: 18px;
+            border: none;
+            font-size: 1.2em;
+            cursor: pointer;
+            width: 100%;
+            border-radius: 0 0 15px 15px;
+            outline: none;
+        }
 
-    .btn-girl {
-      background: #f8b9d4;
-    }
+        .modal {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); /* Fondo más oscuro */
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
 
-    .btn-boy {
-      background: #a2d2ff;
-    }
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 85%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
 
-    .image-upload {
-      background: #007bff;
-      color: white;
-      border: none;
-      padding: 10px;
-      cursor: pointer;
-      border-radius: 5px;
-    }
+        .gender-buttons button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            color: white;
+            font-size: 1.1em;
+            border-radius: 8px;
+            cursor: pointer;
+            outline: none;
+            transition: background-color 0.3s ease;
+        }
 
-    .send-button {
-      background: #007bff;
-      color: white;
-      padding: 12px;
-      font-size: 1em;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
+        .btn-girl {
+            background: #f7aedb; /* Rosa más moderno */
+        }
 
-    textarea {
-      width: 100%;
-      height: 100px;
-      padding: 10px;
-      font-size: 1em;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      resize: none;
-    }
+        .btn-boy {
+            background: #8ac4ff; /* Azul más moderno */
+        }
 
-    img {
-      max-width: 100px;
-      border-radius: 8px;
-      margin-top: 8px;
-    }
+        .btn-girl.selected {
+            background: #e84a91; /* Rosa seleccionado más oscuro */
+        }
 
-    .hidden {
-      display: none;
-    }
-  </style>
+        .btn-boy.selected {
+            background: #007bff; /* Azul seleccionado más oscuro */
+        }
+
+        .image-upload {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px;
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 1.1em;
+            outline: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .image-upload:hover {
+            background: #0056b3;
+        }
+
+        .send-button {
+            background: #28a745; /* Verde enviar */
+            color: white;
+            padding: 15px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            outline: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .send-button:hover {
+            background: #1e7e34;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 12px;
+            font-size: 1.1em;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            resize: vertical;
+            outline: none;
+        }
+
+        img {
+            max-width: 120px;
+            border-radius: 10px;
+            margin-top: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #image-preview {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        #image-preview img {
+            max-width: 100px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+        }
+
+        .settings-modal {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 11;
+        }
+
+        .settings-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 80%;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        .settings-content h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .filter-options label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+            color: #555;
+        }
+
+        .filter-options select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            outline: none;
+        }
+
+        .settings-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .settings-buttons button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            outline: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .settings-buttons .apply-button {
+            background: #00a6ed;
+            color: white;
+        }
+
+        .settings-buttons .apply-button:hover {
+            background: #007acc;
+        }
+
+        .settings-buttons .cancel-button {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .settings-buttons .cancel-button:hover {
+            background: #e0e0e0;
+        }
+    </style>
 </head>
 <body>
-  <div class="chat-container">
-    <header>💬 Chat Anónimo</header>
-    <button class="top-button" onclick="openModal()">📝 Escribe tu secreto</button>
-    <div id="chat-box" class="chat-box"></div>
-  </div>
-
-  <div class="modal" id="modal">
-    <div class="modal-content">
-      <input type="file" id="image-input" class="hidden" accept="image/*" multiple>
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <div class="gender-buttons" style="display: flex; gap: 10px;">
-          <button id="btn-girl" class="btn-girl" onclick="selectGender('👩 Mujer')">👩 Soy Mujer</button>
-          <button id="btn-boy" class="btn-boy" onclick="selectGender('👨 Hombre')">👨 Soy Hombre</button>
-        </div>
-        <button class="image-upload" onclick="document.getElementById('image-input').click()">📷 Subir Imagen</button>
-      </div>
-      <textarea id="text-message" placeholder="Escribe tu secreto..."></textarea>
-      <div id="image-preview" style="display: flex; gap: 10px; flex-wrap: wrap;"></div>
-      <button class="send-button" onclick="sendMessage()">📤 Publicar Secreto</button>
+    <div class="chat-container">
+        <header>
+            <span>💬 Chat Anónimo</span>
+            <button onclick="openSettingsModal()">⚙️</button>
+        </header>
+        <div id="chat-box" class="chat-box">
+            </div>
+        <button class="top-button" onclick="openModal()">📝 Escribe tu secreto</button>
     </div>
-  </div>
 
-  <script>
-    let selectedGender = null;
-    let messageCount = 1;
-    let selectedImages = [];
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <input type="file" id="image-input" class="hidden" accept="image/*" multiple>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div class="gender-buttons" style="display: flex; gap: 10px;">
+                    <button id="btn-girl" class="btn-girl" onclick="selectGender('👩 Mujer')">👩 Soy Mujer</button>
+                    <button id="btn-boy" class="btn-boy" onclick="selectGender('👨 Hombre')">👨 Soy Hombre</button>
+                </div>
+                <button class="image-upload" onclick="document.getElementById('image-input').click()">📷 Subir Imagen</button>
+            </div>
+            <div id="image-preview" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                </div>
+            <textarea id="text-message" placeholder="Escribe tu secreto..."></textarea>
+            <button class="send-button" onclick="sendMessage()">📤 Publicar Secreto</button>
+        </div>
+    </div>
 
-    function openModal() {
-      document.getElementById('modal').style.display = 'flex';
-    }
+    <div class="settings-modal" id="settingsModal">
+        <div class="settings-content">
+            <h2>⚙️ Ajustes de Filtro</h2>
+            <div class="filter-options">
+                <label for="gender-filter">Mostrar mensajes de:</label>
+                <select id="gender-filter">
+                    <option value="todos">Todos</option>
+                    <option value="mujer">Mujer</option>
+                    <option value="hombre">Hombre</option>
+                </select>
+            </div>
+            <div class="settings-buttons">
+                <button class="cancel-button" onclick="closeSettingsModal()">Cancelar</button>
+                <button class="apply-button" onclick="applyFilter()">Aplicar</button>
+            </div>
+        </div>
+    </div>
 
-    function closeModal() {
-      document.getElementById('modal').style.display = 'none';
-      document.getElementById('text-message').value = '';
-      document.getElementById('image-preview').innerHTML = '';
-      document.getElementById('image-input').value = '';
-      selectedImages = [];
-      resetGenderButtons();
-      selectedGender = null;
-    }
+    <script>
+        let selectedGender = null;
+        let messageCount = 1;
+        let selectedImages = [];
+        let currentFilter = 'todos';
 
-    function resetGenderButtons() {
-      document.getElementById('btn-girl').style.backgroundColor = '#f8b9d4';
-      document.getElementById('btn-boy').style.backgroundColor = '#a2d2ff';
-    }
+        function openModal() {
+            document.getElementById('modal').style.display = 'flex';
+        }
 
-    function selectGender(gender) {
-      selectedGender = gender;
-      resetGenderButtons();
-      if (gender === '👩 Mujer') {
-        document.getElementById('btn-girl').style.backgroundColor = '#d63384';
-      } else {
-        document.getElementById('btn-boy').style.backgroundColor = '#0056b3';
-      }
-    }
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+            document.getElementById('text-message').value = '';
+            document.getElementById('image-preview').innerHTML = '';
+            document.getElementById('image-input').value = '';
+            selectedImages = [];
+            resetGenderButtons();
+            selectedGender = null;
+        }
 
-    document.getElementById('image-input').addEventListener('change', function () {
-      const preview = document.getElementById('image-preview');
-      preview.innerHTML = '';
-      selectedImages = [];
-      const files = Array.from(this.files).slice(0, 3);
-      files.forEach(file => {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-          const img = document.createElement('img');
-          img.src = e.target.result;
-          selectedImages.push(e.target.result);
-          preview.appendChild(img);
-        };
-        reader.readAsDataURL(file);
-      });
-    });
+        function resetGenderButtons() {
+            document.getElementById('btn-girl').classList.remove('selected');
+            document.getElementById('btn-boy').classList.remove('selected');
+        }
 
-    function sendMessage() {
-      const text = document.getElementById('text-message').value.trim();
-      if (!selectedGender) {
-        alert("Debes seleccionar si eres hombre o mujer.");
-        return;
-      }
-      if (!text) {
-        alert("Debes escribir un secreto.");
-        return;
-      }
-      const chatBox = document.getElementById('chat-box');
-      const messageDiv = document.createElement('div');
-      messageDiv.className = 'message';
-      const meta = document.createElement('div');
-      meta.className = 'meta';
-      meta.textContent = `Anonimo ${String(messageCount).padStart(4, '0')} · ${selectedGender}`;
-      messageDiv.appendChild(meta);
-      selectedImages.forEach(src => {
-        const img = document.createElement('img');
-        img.src = src;
-        messageDiv.appendChild(img);
-      });
-      const messageText = document.createElement('div');
-      messageText.textContent = text;
-      messageDiv.appendChild(messageText);
-      const reactionsDiv = document.createElement('div');
-      reactionsDiv.className = 'reactions';
-      const reactions = { '❤️': 0, '😂': 0, '😡': 0 };
-      const userReactions = {};
-      Object.keys(reactions).forEach(symbol => {
-        const btn = document.createElement('button');
-        const span = document.createElement('span');
-        span.textContent = ` ${reactions[symbol]}`;
-        btn.appendChild(document.createTextNode(symbol));
-        btn.appendChild(span);
-        btn.onclick = () => {
-          if (userReactions[symbol]) {
-            reactions[symbol]--;
-            userReactions[symbol] = false;
-          } else {
-            reactions[symbol]++;
-            userReactions[symbol] = true;
-          }
-          span.textContent = ` ${reactions[symbol]}`;
-        };
-        reactionsDiv.appendChild(btn);
-      });
-      messageDiv.appendChild(reactionsDiv);
-      chatBox.appendChild(messageDiv);
-      chatBox.scrollTop = chatBox.scrollHeight;
-      messageCount++;
-      closeModal();
-    }
+        function selectGender(gender) {
+            selectedGender = gender;
+            resetGenderButtons();
+            if (gender === '👩 Mujer') {
+                document.getElementById('btn-girl').classList.add('selected');
+            } else if (gender === '👨 Hombre') {
+                document.getElementById('btn-boy').classList.add('selected');
+            }
+        }
 
-    window.onclick = function (event) {
-      const modal = document.getElementById('modal');
-      if (event.target === modal) {
-        closeModal();
-      }
-    }
-  </script>
+        document.getElementById('image-input').addEventListener('change', function () {
+            const preview = document.getElementById('image-preview');
+            preview.innerHTML = '';
+            selectedImages = [];
+            const files = Array.from(this.files).slice(0, 3);
+            files.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    selectedImages.push(e.target.result);
+                    preview.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+
+        function sendMessage() {
+            const text = document.getElementById('text-message').value.trim();
+            if (!selectedGender) {
+                alert("Debes seleccionar si eres hombre o mujer.");
+                return;
+            }
+            if (!text && selectedImages.length === 0) {
+                alert("Debes escribir un secreto o subir una imagen.");
+                return;
+            }
+            const chatBox = document.getElementById('chat-box');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${selectedGender === '👩 Mujer' ? 'mujer' : 'hombre'}`;
+            const meta = document.createElement('div');
+            meta.className = 'meta';
+            meta.textContent = `Anónimo ${String(messageCount).padStart(4, '0')} · ${selectedGender}`;
+            messageDiv.appendChild(meta);
+            selectedImages.forEach(src => {
+                const img = document.createElement('img');
+                img.src = src;
+                messageDiv.appendChild(img);
+            });
+            if (text) {
+                const messageText = document.createElement('div');
+                messageText.textContent = text;
+                messageDiv.appendChild(messageText);
+            }
+            const reactionsDiv = document.createElement('div');
+            reactionsDiv.className = 'reactions';
+            const reactions = { '❤️': 0, '😂': 0, '😡': 0 };
+            const userReactions = {};
+            Object.keys(reactions).forEach(symbol => {
+                const btn = document.createElement('button');
+                const span = document.createElement('span');
+                span.textContent = ` ${reactions[symbol]}`;
+                btn.appendChild(document.createTextNode(symbol));
+                btn.appendChild(span);
+                btn.onclick = () => {
+                    if (userReactions[symbol]) {
+                        reactions[symbol]--;
+                        userReactions[symbol] = false;
+                    } else {
+                        reactions[symbol]++;
+                        userReactions[symbol] = true;
+                    }
+                    span.textContent = ` ${reactions[symbol]}`;
+                };
+                reactionsDiv.appendChild(btn);
+            });
+            messageDiv.appendChild(reactionsDiv);
+            chatBox.appendChild(messageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+            messageCount++;
+            closeModal();
+            applyFilter(); // Re-aplica el filtro después de enviar un mensaje
+        }
+
+        window.onclick = function (event) {
+            const modal = document.getElementById('modal');
+            if (event.target === modal) {
+                closeModal();
+            }
+            const settingsModal = document.getElementById('settingsModal');
+            if (event.target === settingsModal) {
+                closeSettingsModal();
+            }
+        }
+
+        // Funcionalidad de Ajustes y Filtro
+        function openSettingsModal() {
+            document.getElementById('settingsModal').style.display = 'flex';
+        }
+
+        function closeSettingsModal() {
+            document.getElementById('settingsModal').style.display = 'none';
+        }
+
+        function applyFilter() {
+            const filterValue = document.getElementById('gender-filter').value;
+            currentFilter = filterValue;
+            const chatBox = document.getElementById('chat-box');
+            const messages = chatBox.querySelectorAll('.message');
+
+            messages.forEach(message => {
+                if (filterValue === 'todos') {
+                    message.style.display = 'flex';
+                } else if (filterValue === 'mujer' && message.classList.contains('mujer')){
+                    message.style.display = 'flex';
+                } else if (filterValue === 'hombre' && message.classList.contains('hombre')) {
+                    message.style.display = 'flex';
+                } else {
+                    message.style.display = 'none';
+                }
+            });
+        }
+
+        // Aplicar el filtro inicial al cargar la página (mostrar todos)
+        applyFilter();
+    </script>
 </body>
 </html>
